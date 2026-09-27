@@ -1,0 +1,6 @@
+{
+  "name": "Atomic Inside - Coaching Management System",
+  "description": "Comprehensive coaching management system for Atomic Inside: students & teachers payments, automatic receipts, class counting, expense tracking, and branch finances.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <script>
+      (function() {
+        try {
+          if (typeof window !== 'undefined') {
+            var origFetch = window.fetch ? window.fetch.bind(window) : null;
+            try {
+              Object.defineProperty(window, 'fetch', {
+                get: function() { return origFetch; },
+                set: function(fn) { origFetch = fn; },
+                configurable: true,
+                enumerable: true
+              });
+            } catch (e1) {
+              try {
+                var proto = Object.getPrototypeOf(window);
+                if (proto) {
+                  Object.defineProperty(proto, 'fetch', {
+                    get: function() { return origFetch; },
+                    set: function(fn) { origFetch = fn; },
+                    configurable: true,
+                    enumerable: true
+                  });
+                }
+              } catch (e2) {}
+            }
+          }
+        } catch (e) {}
+      })();
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Atomic Inside - Coaching Management System</title>
+    <meta name="description" content="Comprehensive coaching management system for Atomic Inside: students & teachers payments, automatic receipts, class counting, expense tracking, and branch finances." />
+    <meta property="og:title" content="Atomic Inside - Coaching Management System" />
+    <meta property="og:description" content="Comprehensive coaching management system for Atomic Inside: students & teachers payments, automatic receipts, class counting, expense tracking, and branch finances." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@300;400;500;600;700;800&family=Hind+Siliguri:wght@300;400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700;800;900&family=Noto+Serif+Bengali:wght@500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
