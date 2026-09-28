@@ -485,8 +485,54 @@ export async function seedInitialDataToFirestore(initialData: {
 }
 
 export async function resetAllFirestoreDataToZero(): Promise<void> {
-  const collections = ['students', 'teachers', 'staff', 'expenses', 'classLogs', 'receipts'];
-  for (const colName of collections) {
+  // 1. Reset Students: Retain all enrolled students, reset payments to 0 and full fee to due
+  const studentsSnap = await getDocs(collection(db, 'students'));
+  if (!studentsSnap.empty) {
+    const batch = writeBatch(db);
+    studentsSnap.forEach((d) => {
+      const data = d.data();
+      const totalFee = typeof data.totalFee === 'number' ? data.totalFee : 0;
+      batch.update(doc(db, 'students', d.id), {
+        paidAmount: 0,
+        dueAmount: totalFee,
+        paymentHistory: [],
+        lastPaymentDate: null,
+      });
+    });
+    await batch.commit();
+  }
+
+  // 2. Reset Teachers: Retain teacher profiles, reset honorarium and counting
+  const teachersSnap = await getDocs(collection(db, 'teachers'));
+  if (!teachersSnap.empty) {
+    const batch = writeBatch(db);
+    teachersSnap.forEach((d) => {
+      batch.update(doc(db, 'teachers', d.id), {
+        totalClassesTaken: 0,
+        totalEarned: 0,
+        totalPaid: 0,
+        pendingPayable: 0,
+        paymentHistory: [],
+      });
+    });
+    await batch.commit();
+  }
+
+  // 3. Reset Staff: Retain staff members, reset salary payment history
+  const staffSnap = await getDocs(collection(db, 'staff'));
+  if (!staffSnap.empty) {
+    const batch = writeBatch(db);
+    staffSnap.forEach((d) => {
+      batch.update(doc(db, 'staff', d.id), {
+        paymentHistory: [],
+      });
+    });
+    await batch.commit();
+  }
+
+  // 4. Delete pure transaction collections: expenses, classLogs, receipts
+  const transactionCollections = ['expenses', 'classLogs', 'receipts'];
+  for (const colName of transactionCollections) {
     const snap = await getDocs(collection(db, colName));
     if (!snap.empty) {
       const batch = writeBatch(db);

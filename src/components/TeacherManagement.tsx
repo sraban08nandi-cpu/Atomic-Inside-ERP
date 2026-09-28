@@ -52,7 +52,7 @@ export const TeacherManagement: React.FC<TeacherManagementProps> = ({
   // New Teacher Form
   const [name, setName] = useState('');
   const [mobileNumber, setMobileNumber] = useState('');
-  const [subject, setSubject] = useState('Physics (Mechanics & Quantum)');
+  const [subject, setSubject] = useState('');
   const [ratePerClass, setRatePerClass] = useState<string | number>('');
   const [branch, setBranch] = useState<Branch>('Narayanganj');
 
@@ -111,11 +111,16 @@ export const TeacherManagement: React.FC<TeacherManagementProps> = ({
 
   const handleCreateTeacher = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!subject.trim()) {
+      showToast('error', 'পাঠদানের বিষয় আবশ্যক', 'অনুগ্রহ করে শিক্ষকের পাঠদানের বিষয় লিখুন।');
+      return;
+    }
+
     const newTeacher: Teacher = {
       id: `tch_${Date.now()}`,
       name,
       mobileNumber,
-      subject,
+      subject: subject.trim(),
       ratePerClass: Number(ratePerClass) || 0,
       totalClassesTaken: 0,
       totalEarned: 0,
@@ -131,6 +136,7 @@ export const TeacherManagement: React.FC<TeacherManagementProps> = ({
     showToast('success', 'Faculty Registered', `${name} added to faculty roster!`);
     setName('');
     setMobileNumber('');
+    setSubject('');
     setRatePerClass('');
   };
 
@@ -474,20 +480,54 @@ export const TeacherManagement: React.FC<TeacherManagementProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#450e13] mb-1">
-                  পাঠদানের বিষয় (Subject / Department) *
-                </label>
-                <select
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-bold text-[#450e13]">
+                    পাঠদানের বিষয় (Subject / Department) *
+                  </label>
+                  <span className="text-[10px] text-gray-500 font-medium">টাইপ করুন</span>
+                </div>
+                <input
+                  type="text"
+                  required
+                  list="teacher-subjects-list"
+                  placeholder="যেমন: পদার্থবিজ্ঞান (Physics) বা যেকোনো বিষয়"
                   value={subject}
                   onChange={(e) => setSubject(e.target.value)}
-                  className="w-full px-3 py-2 text-xs sm:text-sm bg-white border border-[#d9c7b4] rounded-lg focus:ring-2 focus:ring-[#6d1a22] focus:outline-none font-medium"
-                >
-                  <option value="Physics (Mechanics & Quantum)">পদার্থবিজ্ঞান (Physics)</option>
-                  <option value="Higher Mathematics (Calculus & Vectors)">উচ্চতর গণিত (Higher Mathematics)</option>
-                  <option value="Chemistry (Organic & Periodic Table)">রসায়ন (Chemistry)</option>
-                  <option value="Biology (Genetics & Botany)">জীববিজ্ঞান (Biology)</option>
-                  <option value="ICT & Computer Science">আইসিটি (ICT & Computer Science)</option>
-                </select>
+                  className="w-full px-3 py-2 text-xs sm:text-sm bg-white border border-[#d9c7b4] rounded-lg focus:ring-2 focus:ring-[#6d1a22] focus:outline-none font-medium text-gray-800"
+                />
+                <datalist id="teacher-subjects-list">
+                  <option value="পদার্থবিজ্ঞান (Physics)" />
+                  <option value="উচ্চতর গণিত (Higher Mathematics)" />
+                  <option value="রসায়ন (Chemistry)" />
+                  <option value="জীববিজ্ঞান (Biology)" />
+                  <option value="আইসিটি (ICT & Computer Science)" />
+                  <option value="ইংরেজি (English)" />
+                  <option value="বাংলা (Bangla)" />
+                </datalist>
+
+                {/* Fast 1-click suggestion chips */}
+                <div className="flex flex-wrap gap-1.5 mt-1.5">
+                  {[
+                    'পদার্থবিজ্ঞান (Physics)',
+                    'উচ্চতর গণিত (Mathematics)',
+                    'রসায়ন (Chemistry)',
+                    'জীববিজ্ঞান (Biology)',
+                    'আইসিটি (ICT)',
+                  ].map((subName) => (
+                    <button
+                      key={subName}
+                      type="button"
+                      onClick={() => setSubject(subName)}
+                      className={`text-[10px] px-2 py-0.5 rounded-md border transition-all cursor-pointer ${
+                        subject === subName
+                          ? 'bg-[#6d1a22] text-white border-[#6d1a22] font-bold shadow-2xs'
+                          : 'bg-[#faf4ea] text-gray-700 border-[#e5d5c4] hover:bg-[#f3e6d5]'
+                      }`}
+                    >
+                      + {subName}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">

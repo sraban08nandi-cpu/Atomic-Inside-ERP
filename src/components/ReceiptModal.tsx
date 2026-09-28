@@ -749,6 +749,17 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ receipt, onClose }) 
                         </div>
                       )}
 
+                      {isStudent && receipt.studentClass && (
+                        <div className="flex items-baseline justify-between border-b border-dashed border-[#ecd9c5] pb-1">
+                          <span className="text-gray-500 font-bold text-[11px]">
+                            শ্রেণি / ক্লাস (Class):
+                          </span>
+                          <span className="font-bold text-[#6d1a22] bg-[#fbf5eb] px-2 py-0.5 rounded border border-[#e8d7c4]">
+                            {receipt.studentClass}
+                          </span>
+                        </div>
+                      )}
+
                       <div className="flex items-baseline justify-between">
                         <span className="text-gray-500 font-bold text-[11px]">
                           যোগাযোগ মোবাইল (Phone):

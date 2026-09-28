@@ -15,6 +15,7 @@ import {
   saveStaffMembers,
   loadCurrentUser,
   saveCurrentUser,
+  resetFinancialDataKeepStudents,
   clearAllDataToZero,
   INITIAL_STUDENTS,
   INITIAL_TEACHERS,
@@ -94,6 +95,7 @@ function CoachingApp() {
   const [activeReceipt, setActiveReceipt] = useState<ReceiptData | null>(null);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
+  const [isStudentFeeModalOpen, setIsStudentFeeModalOpen] = useState(false);
   const [isTeacherModalOpen, setIsTeacherModalOpen] = useState(false);
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
   const [isClassModalOpen, setIsClassModalOpen] = useState(false);
@@ -115,6 +117,7 @@ function CoachingApp() {
         if (isResetModalOpen) setIsResetModalOpen(false);
         else if (isLoginOpen) setIsLoginOpen(false);
         else if (isStudentModalOpen) setIsStudentModalOpen(false);
+        else if (isStudentFeeModalOpen) setIsStudentFeeModalOpen(false);
         else if (isTeacherModalOpen) setIsTeacherModalOpen(false);
         else if (isExpenseModalOpen) setIsExpenseModalOpen(false);
         else if (isClassModalOpen) setIsClassModalOpen(false);
@@ -132,6 +135,7 @@ function CoachingApp() {
     isResetModalOpen,
     isLoginOpen,
     isStudentModalOpen,
+    isStudentFeeModalOpen,
     isTeacherModalOpen,
     isExpenseModalOpen,
     isClassModalOpen,
@@ -146,13 +150,14 @@ function CoachingApp() {
   // =================================================================
   useEffect(() => {
     let unsubs: (() => void)[] = [];
+    const ZERO_DEMO_INITIALIZED_KEY = 'atomic_erp_zero_demo_amounts_synced_v2';
 
     try {
       // 1. Students Subscription
       const unsubStudents = subscribeToStudents(
         (fetchedStudents) => {
           setIsCloudSynced(true);
-          // If Firestore is brand new/empty and not seeded yet, seed initial baseline
+          // If Firestore is brand new/empty and not seeded yet, seed initial zero baseline
           if (fetchedStudents.length === 0 && !isInitialSeedChecked.current) {
             isInitialSeedChecked.current = true;
             seedInitialDataToFirestore({
@@ -165,6 +170,13 @@ function CoachingApp() {
             }).catch((err) => console.warn('Seeding notice:', err));
           } else if (fetchedStudents.length > 0) {
             isInitialSeedChecked.current = true;
+
+            // One-time sanitization: if previous sessions stored non-zero demo transactions, zero them out once
+            if (localStorage.getItem(ZERO_DEMO_INITIALIZED_KEY) !== 'true') {
+              localStorage.setItem(ZERO_DEMO_INITIALIZED_KEY, 'true');
+              resetAllFirestoreDataToZero().catch((err) => console.warn('Zero demo sync notice:', err));
+            }
+
             setStudents(fetchedStudents);
             saveStudents(fetchedStudents);
           } else {
@@ -266,22 +278,34 @@ function CoachingApp() {
   // Sync current user to localStorage
   useEffect(() => saveCurrentUser(currentUser), [currentUser]);
 
-  // Handler: Confirm Reset All Data to Zero (Firestore & Local)
+  // Handler: Confirm Reset All Data to Zero (Retain admitted students, reset payments only)
   const handleConfirmReset = async () => {
+    // 1. Reset in local storage and memory (Students preserved with paidAmount: 0 and dueAmount: totalFee)
+    const { resetStudents, resetTeachers, resetStaff } = resetFinancialDataKeepStudents(
+      students,
+      teachers,
+      staffList
+    );
+    setStudents(resetStudents);
+    setTeachers(resetTeachers);
+    setStaffList(resetStaff);
+    setExpenses([]);
+    setClassLogs([]);
+    setReceipts([]);
+    setIsResetModalOpen(false);
+
+    // 2. Sync to Firestore (students preserved, payments cleared)
     try {
       await resetAllFirestoreDataToZero();
     } catch (err) {
       console.warn('Firestore reset notice:', err);
     }
-    clearAllDataToZero();
-    setStudents([]);
-    setTeachers([]);
-    setStaffList([]);
-    setExpenses([]);
-    setClassLogs([]);
-    setReceipts([]);
-    setIsResetModalOpen(false);
-    showToast('info', 'কাউন্টিং শূন্য (০) করা হয়েছে', 'সকল রেকর্ড মুছে ক্লাউড ও লোকাল ডেটাবেজে পরিষ্কার ফ্রেশ হিসাব প্রস্তুত করা হয়েছে।');
+
+    showToast(
+      'info',
+      'পেমেন্ট হিসাব শূন্য (০) করা হয়েছে',
+      'ভর্তিকৃত সকল শিক্ষার্থী বহাল রয়েছে। শুধুমাত্র সকল ফি পেমেন্ট ও খরচের হিসাব ০ করা হয়েছে।'
+    );
   };
 
   // Handler: Add Student & Auto-generate receipt (Firestore synced)
@@ -297,6 +321,7 @@ function CoachingApp() {
         targetId: newStudent.id,
         targetName: newStudent.name,
         studentId: newStudent.studentId,
+        studentClass: newStudent.studentClass,
         contactNumber: newStudent.mobileNumber,
         programme: newStudent.programme,
         branch: newStudent.branch,
@@ -361,6 +386,7 @@ function CoachingApp() {
       targetId: student.id,
       targetName: student.name,
       studentId: student.studentId,
+      studentClass: student.studentClass,
       contactNumber: student.mobileNumber,
       programme: student.programme,
       branch: student.branch,
@@ -755,6 +781,7 @@ function CoachingApp() {
         defaultBranch="Narayanganj"
         onLogin={(user) => {
           setCurrentUser(user);
+          saveCurrentUser(user);
           setSelectedBranch('Narayanganj');
         }}
       />
@@ -770,14 +797,15 @@ function CoachingApp() {
         setActiveTab={setActiveTab}
         selectedBranch={selectedBranch}
         setSelectedBranch={setSelectedBranch}
-        onLogout={() => setCurrentUser(null)}
+        onLogout={() => {
+          setCurrentUser(null);
+          saveCurrentUser(null);
+          showToast('info', 'লগআউট সম্পন্ন', 'আপনি সফলভাবে লগআউট হয়েছেন।');
+        }}
         onOpenLogin={() => setIsLoginOpen(true)}
         onResetAllData={() => setIsResetModalOpen(true)}
         onOpenMonthlyReport={() => setIsMonthlyReportOpen(true)}
         onOpenCashMemo={() => setIsCashMemoOpen(true)}
-        onOpenFontSettings={() => setIsFontSettingsOpen(true)}
-        currentFontName={FONT_OPTIONS.find((f) => f.id === fontSettings.banglaFont)?.nameBn}
-        isCloudSynced={isCloudSynced}
       />
 
       {/* Main Content Area - Full Width Edge-to-Edge Responsiveness */}
@@ -795,9 +823,13 @@ function CoachingApp() {
             onViewReceipt={(r) => setActiveReceipt(r)}
             onResetAllData={() => setIsResetModalOpen(true)}
             onOpenMonthlyReport={() => setIsMonthlyReportOpen(true)}
-            onNewStudentPayment={() => {
+            onNewStudentAdmission={() => {
               setActiveTab('students');
               setIsStudentModalOpen(true);
+            }}
+            onNewStudentPayment={() => {
+              setActiveTab('students');
+              setIsStudentFeeModalOpen(true);
             }}
             onNewTeacherPayment={() => {
               setActiveTab('teachers');
@@ -825,6 +857,8 @@ function CoachingApp() {
             currentUser={currentUser}
             isAddModalOpen={isStudentModalOpen}
             setIsAddModalOpen={setIsStudentModalOpen}
+            isFeeModalOpen={isStudentFeeModalOpen}
+            setIsFeeModalOpen={setIsStudentFeeModalOpen}
           />
         )}
 
@@ -952,7 +986,10 @@ function CoachingApp() {
       <LoginModal
         isOpen={isLoginOpen}
         onClose={() => setIsLoginOpen(false)}
-        onLogin={(user) => setCurrentUser(user)}
+        onLogin={(user) => {
+          setCurrentUser(user);
+          saveCurrentUser(user);
+        }}
       />
 
       {/* Monthly Audit & Calculations Excel Export Modal */}
@@ -985,10 +1022,10 @@ function CoachingApp() {
               <RotateCcw size={24} />
             </div>
             <h3 className="text-lg font-black text-[#521218] font-serif">
-              সব হিসাব ও কাউন্টিং ০ করতে চান?
+              সব পেমেন্ট ও আর্থিক হিসাব ০ করতে চান?
             </h3>
             <p className="text-xs text-gray-600 mt-2 leading-relaxed">
-              সিস্টেমের সকল পূর্ববর্তী হিসাব, ছাত্র-ছাত্রী, শিক্ষক, ক্লাসের হিসাব, খরচ ও রসিদের রেকর্ড সম্পূর্ণ মুছে শূন্য (০) থেকে শুরু হবে।
+              <strong className="text-[#166534]">ভর্তিকৃত কোনো শিক্ষার্থী মুছে যাবে না।</strong> শুধুমাত্র সকল শিক্ষার্থীর পরিশোধিত ফি শূন্য (০) হবে, বকেয়া সম্পূর্ণ কোর্স ফি হিসেবে পুনরায় ধার্য হবে এবং পূর্বের সকল রসিদ ও খরচের হিসাব শূন্য (০) থেকে শুরু হবে।
             </p>
             <div className="flex items-center justify-center gap-3 mt-6">
               <button
@@ -1001,7 +1038,7 @@ function CoachingApp() {
                 onClick={handleConfirmReset}
                 className="px-4 py-2 text-xs font-black rounded-xl bg-[#be123c] hover:bg-[#9f1239] text-white shadow-md transition-all active:scale-95 cursor-pointer"
               >
-                হ্যাঁ, সব ০ করুন
+                হ্যাঁ, পেমেন্ট হিসাব ০ করুন
               </button>
             </div>
           </div>

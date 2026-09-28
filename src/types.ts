@@ -36,6 +36,7 @@ export interface Student {
   studentId: string;
   name: string;
   mobileNumber: string;
+  studentClass?: string;
   programme: string;
   batchTime?: string;
   totalFee: number;
@@ -149,6 +150,7 @@ export interface ReceiptData {
   targetName: string;
   studentId?: string;
   rollNumber?: string;
+  studentClass?: string;
   contactNumber: string;
   programme: string;
   branch: Branch;

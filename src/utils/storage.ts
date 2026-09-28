@@ -1,106 +1,61 @@
 import { Student, Teacher, Expense, TeacherClassLog, ReceiptData, User, StaffMember } from '../types';
 
 const STORAGE_KEYS = {
-  STUDENTS: 'atomic_erp_students_v1',
-  TEACHERS: 'atomic_erp_teachers_v1',
-  STAFF: 'atomic_erp_staff_v1',
-  EXPENSES: 'atomic_erp_expenses_v1',
-  CLASS_LOGS: 'atomic_erp_class_logs_v1',
-  RECEIPTS: 'atomic_erp_receipts_v1',
+  STUDENTS: 'atomic_erp_students_v2',
+  TEACHERS: 'atomic_erp_teachers_v2',
+  STAFF: 'atomic_erp_staff_v2',
+  EXPENSES: 'atomic_erp_expenses_v2',
+  CLASS_LOGS: 'atomic_erp_class_logs_v2',
+  RECEIPTS: 'atomic_erp_receipts_v2',
   CURRENT_USER: 'atomic_erp_current_user_v1',
 };
 
-// Initial Seed Data for immediate testing & realistic operations
+// Initial Seed Data with zero demo amounts (clean operational baseline)
 export const INITIAL_STUDENTS: Student[] = [
   {
     id: 'std_101',
     studentId: 'AI-ST-8821',
     name: 'ফারহান আহমেদ (Farhan Ahmed)',
     mobileNumber: '01712-345678',
-    programme: 'HSC Medical & Dental Physics+Chem',
+    studentClass: 'Class 10',
+    programme: 'Class 10 Science Special',
     batchTime: 'রবি-মঙ্গল-বৃহস্পতি (সকাল ৯:০০)',
     totalFee: 12000,
-    paidAmount: 8000,
-    dueAmount: 4000,
+    paidAmount: 0,
+    dueAmount: 12000,
     branch: 'Narayanganj',
     admissionDate: '2026-09-01',
-    lastPaymentDate: '2026-09-15',
-    paymentHistory: [
-      {
-        id: 'pay_101_1',
-        date: '2026-09-01',
-        time: '10:30 AM',
-        amount: 5000,
-        method: 'cash',
-        receivedBy: 'Anirban Ghosh (Founder)',
-        receiptNo: 'RCP-882101',
-        note: 'ভর্তি ও প্রথম কিস্তি',
-      },
-      {
-        id: 'pay_101_2',
-        date: '2026-09-15',
-        time: '11:15 AM',
-        amount: 3000,
-        method: 'bkash',
-        transactionId: 'TRX9A8B7C',
-        receivedBy: 'Ankon Saha (Manager)',
-        receiptNo: 'RCP-882102',
-        note: 'দ্বিতীয় কিস্তি',
-      },
-    ],
+    paymentHistory: [],
   },
   {
     id: 'std_102',
     studentId: 'AI-ST-8822',
     name: 'নুসরাত জাহান (Nusrat Jahan)',
     mobileNumber: '01911-987654',
-    programme: 'Engineering BUET Advance Mathematics',
+    studentClass: 'Class 9',
+    programme: 'Class 9 General Science & Math',
     batchTime: 'শনি-সোম-বুধ (বিকাল ৩:০০)',
     totalFee: 15000,
-    paidAmount: 15000,
-    dueAmount: 0,
+    paidAmount: 0,
+    dueAmount: 15000,
     branch: 'Narayanganj',
     admissionDate: '2026-09-05',
-    lastPaymentDate: '2026-09-20',
-    paymentHistory: [
-      {
-        id: 'pay_102_1',
-        date: '2026-09-05',
-        time: '03:45 PM',
-        amount: 15000,
-        method: 'cash',
-        receivedBy: 'Srabon Nondi (ICT Head)',
-        receiptNo: 'RCP-882201',
-        note: 'এককালীন পূর্ণ পরিশোধ',
-      },
-    ],
+    paymentHistory: [],
   },
   {
     id: 'std_103',
     studentId: 'AI-ST-8823',
     name: 'সাকিব আল হাসান (Sakib Al Hasan)',
     mobileNumber: '01823-456789',
-    programme: 'Physics Special Mechanics & Optics',
+    studentClass: 'Class 8',
+    programme: 'Class 8 Junior Science & Math',
     batchTime: 'রবি-মঙ্গল-বৃহস্পতি (বিকাল ৪:৩০)',
     totalFee: 10000,
-    paidAmount: 5000,
-    dueAmount: 5000,
+    paidAmount: 0,
+    dueAmount: 10000,
     branch: 'Narayanganj',
     admissionDate: '2026-09-10',
-    lastPaymentDate: '2026-09-10',
-    paymentHistory: [
-      {
-        id: 'pay_103_1',
-        date: '2026-09-10',
-        time: '04:15 PM',
-        amount: 5000,
-        method: 'nagad',
-        transactionId: 'NGD4F5G6',
-        receivedBy: 'Ankon Saha (Manager)',
-        receiptNo: 'RCP-882301',
-        note: 'ভর্তি ফি ও অগ্রিম',
-      },
-    ],
+    paymentHistory: [],
   },
 ];
 
@@ -111,25 +66,13 @@ export const INITIAL_TEACHERS: Teacher[] = [
     mobileNumber: '01819-876543',
     subject: 'পদার্থবিজ্ঞান (Physics Mechanics & Quantum)',
     ratePerClass: 1500,
-    totalClassesTaken: 8,
-    totalEarned: 12000,
-    totalPaid: 9000,
-    pendingPayable: 3000,
+    totalClassesTaken: 0,
+    totalEarned: 0,
+    totalPaid: 0,
+    pendingPayable: 0,
     branch: 'Narayanganj',
     joiningDate: '2026-08-01',
-    paymentHistory: [
-      {
-        id: 'tch_pay_201_1',
-        date: '2026-09-10',
-        time: '06:00 PM',
-        amount: 9000,
-        method: 'bank',
-        transactionId: 'DBBL99218',
-        disbursedBy: 'Anirban Ghosh (Founder)',
-        receiptNo: 'VCH-TCH-00201',
-        note: 'আগস্ট ও সেপ্টেম্বর ক্লাস সম্মানী',
-      },
-    ],
+    paymentHistory: [],
   },
   {
     id: 'tch_202',
@@ -137,25 +80,13 @@ export const INITIAL_TEACHERS: Teacher[] = [
     mobileNumber: '01733-112233',
     subject: 'উচ্চতর গণিত (Higher Mathematics Calculus)',
     ratePerClass: 1200,
-    totalClassesTaken: 6,
-    totalEarned: 7200,
-    totalPaid: 7200,
+    totalClassesTaken: 0,
+    totalEarned: 0,
+    totalPaid: 0,
     pendingPayable: 0,
     branch: 'Narayanganj',
     joiningDate: '2026-08-15',
-    paymentHistory: [
-      {
-        id: 'tch_pay_202_1',
-        date: '2026-09-18',
-        time: '05:30 PM',
-        amount: 7200,
-        method: 'bkash',
-        transactionId: 'BK991203',
-        disbursedBy: 'Ankon Saha (Manager)',
-        receiptNo: 'VCH-TCH-00202',
-        note: 'ক্যালকুলাস স্পেশাল ব্যাচ সম্মানী',
-      },
-    ],
+    paymentHistory: [],
   },
   {
     id: 'tch_203',
@@ -163,207 +94,21 @@ export const INITIAL_TEACHERS: Teacher[] = [
     mobileNumber: '01677-445566',
     subject: 'রসায়ন (Chemistry Organic & Periodic)',
     ratePerClass: 1200,
-    totalClassesTaken: 5,
-    totalEarned: 6000,
-    totalPaid: 3600,
-    pendingPayable: 2400,
+    totalClassesTaken: 0,
+    totalEarned: 0,
+    totalPaid: 0,
+    pendingPayable: 0,
     branch: 'Narayanganj',
     joiningDate: '2026-08-20',
-    paymentHistory: [
-      {
-        id: 'tch_pay_203_1',
-        date: '2026-09-12',
-        time: '04:00 PM',
-        amount: 3600,
-        method: 'cash',
-        disbursedBy: 'Anirban Ghosh (Founder)',
-        receiptNo: 'VCH-TCH-00203',
-        note: 'পার্ট পেমেন্ট সম্মানী',
-      },
-    ],
+    paymentHistory: [],
   },
 ];
 
-export const INITIAL_EXPENSES: Expense[] = [
-  {
-    id: 'exp_301',
-    voucherNo: 'VCH-30101',
-    title: 'নারায়ণগঞ্জ ক্যাম্পাস রুম ভাড়া (September Rent)',
-    category: 'rent',
-    amount: 18000,
-    date: '2026-09-02',
-    branch: 'Narayanganj',
-    recordedBy: 'Anirban Ghosh (Founder)',
-    paymentMethod: 'bank',
-    notes: 'আমলাপাড়া ক্যাম্পাস ভবন ভাড়া',
-  },
-  {
-    id: 'exp_302',
-    voucherNo: 'VCH-30102',
-    title: 'ফিজিক্স ও কেমিস্ট্রি লেকচার শিট প্রিন্ট ও বাইন্ডিং',
-    category: 'printing',
-    amount: 3500,
-    date: '2026-09-08',
-    branch: 'Narayanganj',
-    recordedBy: 'Srabon Nondi (ICT Head)',
-    paymentMethod: 'cash',
-    notes: '২০০ সেট স্পেশাল নোটস',
-  },
-  {
-    id: 'exp_303',
-    voucherNo: 'VCH-30103',
-    title: 'চলতি মাসের বিদ্যুৎ বিল (DESCO / DPDC)',
-    category: 'utilities',
-    amount: 4200,
-    date: '2026-09-14',
-    branch: 'Narayanganj',
-    recordedBy: 'Ankon Saha (Manager)',
-    paymentMethod: 'bkash',
-    notes: 'এসি ও লাইটিং বিল',
-  },
-  {
-    id: 'exp_304',
-    voucherNo: 'VCH-30104',
-    title: 'শিক্ষক ও অভিভাবক আপ্যায়ন (Tea & Refreshment)',
-    category: 'refreshment',
-    amount: 1400,
-    date: '2026-09-22',
-    branch: 'Narayanganj',
-    recordedBy: 'Ankon Saha (Manager)',
-    paymentMethod: 'cash',
-    notes: 'অভিভাবক মিটিং নাশতা',
-  },
-];
+export const INITIAL_EXPENSES: Expense[] = [];
 
-export const INITIAL_CLASS_LOGS: TeacherClassLog[] = [
-  {
-    id: 'cls_401',
-    teacherId: 'tch_201',
-    teacherName: 'ড. কাজী শফিকুল ইসলাম (Dr. Kazi Shafiq)',
-    subject: 'পদার্থবিজ্ঞান (Physics)',
-    batchName: 'HSC Medical & Dental Physics',
-    date: '2026-09-21',
-    time: '09:30 AM',
-    durationHours: 1.5,
-    studentAttendanceCount: 28,
-    topic: 'নিউটনিয়ান বলবিদ্যা ও ভরবেগের নিত্যতা সূত্র',
-    branch: 'Narayanganj',
-    status: 'conducted',
-    rateApplied: 1500,
-  },
-  {
-    id: 'cls_402',
-    teacherId: 'tch_202',
-    teacherName: 'প্রকৌশলী মাহমুদুল হাসান (Engr. Mahmud)',
-    subject: 'উচ্চতর গণিত (Higher Mathematics)',
-    batchName: 'Engineering BUET Advance Mathematics',
-    date: '2026-09-22',
-    time: '03:15 PM',
-    durationHours: 2.0,
-    studentAttendanceCount: 24,
-    topic: 'অন্তরীকরণ ও গুরুমান-লঘুমান ক্যালকুলাস',
-    branch: 'Narayanganj',
-    status: 'conducted',
-    rateApplied: 1200,
-  },
-  {
-    id: 'cls_403',
-    teacherId: 'tch_203',
-    teacherName: 'তানজিলা রহমান (Tanzila Rahman)',
-    subject: 'রসায়ন (Chemistry)',
-    batchName: 'HSC Medical & Dental Chemistry',
-    date: '2026-09-23',
-    time: '11:00 AM',
-    durationHours: 1.5,
-    studentAttendanceCount: 26,
-    topic: 'জৈব রসায়ন—অ্যালকাইন ও অ্যারোমেটিক হাইড্রোকার্বন',
-    branch: 'Narayanganj',
-    status: 'conducted',
-    rateApplied: 1200,
-  },
-];
+export const INITIAL_CLASS_LOGS: TeacherClassLog[] = [];
 
-export const INITIAL_RECEIPTS: ReceiptData[] = [
-  {
-    id: 'rcp_init_1',
-    receiptNo: 'RCP-882101',
-    type: 'student',
-    targetId: 'std_101',
-    targetName: 'ফারহান আহমেদ (Farhan Ahmed)',
-    studentId: 'AI-ST-8821',
-    contactNumber: '01712-345678',
-    programme: 'HSC Medical & Dental Physics+Chem',
-    branch: 'Narayanganj',
-    amountPaid: 5000,
-    totalFee: 12000,
-    dueAmount: 7000,
-    date: '2026-09-01',
-    time: '10:30 AM',
-    receiverName: 'Anirban Ghosh (Founder)',
-    paymentMethod: 'cash',
-    batchTime: 'রবি-মঙ্গল-বৃহস্পতি (সকাল ৯:০০)',
-  },
-  {
-    id: 'rcp_init_2',
-    receiptNo: 'RCP-882201',
-    type: 'student',
-    targetId: 'std_102',
-    targetName: 'নুসরাত জাহান (Nusrat Jahan)',
-    studentId: 'AI-ST-8822',
-    contactNumber: '01911-987654',
-    programme: 'Engineering BUET Advance Mathematics',
-    branch: 'Narayanganj',
-    amountPaid: 15000,
-    totalFee: 15000,
-    dueAmount: 0,
-    date: '2026-09-05',
-    time: '03:45 PM',
-    receiverName: 'Srabon Nondi (ICT Head)',
-    paymentMethod: 'cash',
-    batchTime: 'শনি-সোম-বুধ (বিকাল ৩:০০)',
-  },
-  {
-    id: 'rcp_init_3',
-    receiptNo: 'VCH-TCH-00201',
-    type: 'teacher',
-    targetId: 'tch_201',
-    targetName: 'ড. কাজী শফিকুল ইসলাম (Dr. Kazi Shafiq)',
-    contactNumber: '01819-876543',
-    programme: 'পদার্থবিজ্ঞান (Physics)',
-    branch: 'Narayanganj',
-    amountPaid: 9000,
-    totalFee: 12000,
-    dueAmount: 3000,
-    date: '2026-09-10',
-    time: '06:00 PM',
-    receiverName: 'Anirban Ghosh (Founder)',
-    paymentMethod: 'bank',
-  },
-  {
-    id: 'rcp_init_4',
-    receiptNo: 'VCH-SAL-260901',
-    type: 'staff',
-    targetId: 'stf_01',
-    targetName: 'অনির্বাণ ঘোষ (Anirban Ghosh)',
-    contactNumber: '01834-899620',
-    programme: 'Founder & Academic Director',
-    branch: 'Narayanganj',
-    amountPaid: 50000,
-    totalFee: 50000,
-    dueAmount: 0,
-    date: '2026-09-05',
-    time: '11:00 AM',
-    receiverName: 'Anirban Ghosh (Founder)',
-    paymentMethod: 'bank',
-    transactionId: 'SAL-DBBL-991',
-    salaryMonth: 'September 2026',
-    salaryDetails: {
-      basicSalary: 45000,
-      bonus: 5000,
-      deduction: 0,
-    },
-  },
-];
+export const INITIAL_RECEIPTS: ReceiptData[] = [];
 
 export const INITIAL_STAFF: StaffMember[] = [
   {
@@ -377,23 +122,7 @@ export const INITIAL_STAFF: StaffMember[] = [
     branch: 'Narayanganj',
     joiningDate: '2018-01-01',
     status: 'active',
-    paymentHistory: [
-      {
-        id: 'stf_pay_01_1',
-        voucherNo: 'VCH-SAL-260901',
-        date: '2026-09-05',
-        time: '11:00 AM',
-        month: 'September 2026',
-        basicSalary: 45000,
-        bonus: 5000,
-        deduction: 0,
-        netAmount: 50000,
-        method: 'bank',
-        transactionId: 'SAL-DBBL-991',
-        disbursedBy: 'Anirban Ghosh (Founder)',
-        note: 'সেপ্টেম্বর ২০২৬ মাসিক নির্বাহী সম্মানী ও উৎসব বোনাস',
-      },
-    ],
+    paymentHistory: [],
   },
   {
     id: 'stf_02',
@@ -406,23 +135,7 @@ export const INITIAL_STAFF: StaffMember[] = [
     branch: 'Narayanganj',
     joiningDate: '2019-03-01',
     status: 'active',
-    paymentHistory: [
-      {
-        id: 'stf_pay_02_1',
-        voucherNo: 'VCH-SAL-260902',
-        date: '2026-09-05',
-        time: '11:30 AM',
-        month: 'September 2026',
-        basicSalary: 35000,
-        bonus: 0,
-        deduction: 0,
-        netAmount: 35000,
-        method: 'bank',
-        transactionId: 'SAL-EBL-8812',
-        disbursedBy: 'Anirban Ghosh (Founder)',
-        note: 'সেপ্টেম্বর ২০২৬ মাসিক বেতন',
-      },
-    ],
+    paymentHistory: [],
   },
   {
     id: 'stf_03',
@@ -435,23 +148,7 @@ export const INITIAL_STAFF: StaffMember[] = [
     branch: 'Narayanganj',
     joiningDate: '2020-07-15',
     status: 'active',
-    paymentHistory: [
-      {
-        id: 'stf_pay_03_1',
-        voucherNo: 'VCH-SAL-260903',
-        date: '2026-09-06',
-        time: '12:00 PM',
-        month: 'September 2026',
-        basicSalary: 30000,
-        bonus: 2000,
-        deduction: 0,
-        netAmount: 32000,
-        method: 'bkash',
-        transactionId: 'BK-SAL-7712',
-        disbursedBy: 'Anirban Ghosh (Founder)',
-        note: 'সেপ্টেম্বর ২০২৬ মাসিক বেতন ও ক্যাম্পাস ওভারটাইম ভাতা',
-      },
-    ],
+    paymentHistory: [],
   },
   {
     id: 'stf_04',
@@ -598,19 +295,14 @@ export function saveStaffMembers(staff: StaffMember[]): void {
 
 export function loadCurrentUser(): User | null {
   try {
-    const data = localStorage.getItem(STORAGE_KEYS.CURRENT_USER);
+    // Clear any persistent local storage user to ensure fresh visits always see login page
+    localStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
+    const data = sessionStorage.getItem(STORAGE_KEYS.CURRENT_USER);
     if (data) {
       return JSON.parse(data);
     }
-    // Default logged in user: Anirban Ghosh (Founder)
-    const defaultUser: User = {
-      id: 'usr_founder_default',
-      name: 'Anirban Ghosh',
-      email: 'founder@atomicinside.edu.bd',
-      role: 'founder',
-      branch: 'Narayanganj',
-    };
-    return defaultUser;
+    // Always start with login screen first
+    return null;
   } catch {
     return null;
   }
@@ -619,13 +311,59 @@ export function loadCurrentUser(): User | null {
 export function saveCurrentUser(user: User | null): void {
   try {
     if (user) {
-      localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(user));
+      sessionStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(user));
     } else {
+      sessionStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
       localStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
     }
   } catch (err) {
     console.error('Error saving current user:', err);
   }
+}
+
+export function resetFinancialDataKeepStudents(
+  currentStudents: Student[],
+  currentTeachers: Teacher[] = [],
+  currentStaff: StaffMember[] = []
+): {
+  resetStudents: Student[];
+  resetTeachers: Teacher[];
+  resetStaff: StaffMember[];
+} {
+  const resetStudents: Student[] = currentStudents.map((s) => ({
+    ...s,
+    paidAmount: 0,
+    dueAmount: s.totalFee,
+    paymentHistory: [],
+    lastPaymentDate: undefined,
+  }));
+
+  const resetTeachers: Teacher[] = currentTeachers.map((t) => ({
+    ...t,
+    totalClassesTaken: 0,
+    totalEarned: 0,
+    totalPaid: 0,
+    pendingPayable: 0,
+    paymentHistory: [],
+  }));
+
+  const resetStaff: StaffMember[] = currentStaff.map((st) => ({
+    ...st,
+    paymentHistory: [],
+  }));
+
+  try {
+    localStorage.setItem(STORAGE_KEYS.STUDENTS, JSON.stringify(resetStudents));
+    localStorage.setItem(STORAGE_KEYS.TEACHERS, JSON.stringify(resetTeachers));
+    localStorage.setItem(STORAGE_KEYS.STAFF, JSON.stringify(resetStaff));
+    localStorage.setItem(STORAGE_KEYS.EXPENSES, JSON.stringify([]));
+    localStorage.setItem(STORAGE_KEYS.CLASS_LOGS, JSON.stringify([]));
+    localStorage.setItem(STORAGE_KEYS.RECEIPTS, JSON.stringify([]));
+  } catch (err) {
+    console.error('Error resetting financial data:', err);
+  }
+
+  return { resetStudents, resetTeachers, resetStaff };
 }
 
 export function clearAllDataToZero(): void {

@@ -20,6 +20,8 @@ import {
   FileSpreadsheet,
   DollarSign,
   Briefcase,
+  UserPlus,
+  CreditCard,
 } from 'lucide-react';
 
 interface DashboardOverviewProps {
@@ -33,6 +35,7 @@ interface DashboardOverviewProps {
   onNavigate: (tab: any) => void;
   onViewReceipt: (receipt: ReceiptData) => void;
   onNewStudentPayment: () => void;
+  onNewStudentAdmission?: () => void;
   onNewTeacherPayment: () => void;
   onNewExpense: () => void;
   onNewClassLog: () => void;
@@ -51,6 +54,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
   onNavigate,
   onViewReceipt,
   onNewStudentPayment,
+  onNewStudentAdmission,
   onNewTeacherPayment,
   onNewExpense,
   onNewClassLog,
@@ -177,13 +181,24 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
           <div className="flex flex-col gap-2.5 shrink-0">
             {/* Tier 1: Primary Action Buttons (Cohesive Quick Action Toolbar) */}
             <div className="flex flex-wrap items-center gap-2">
+              {/* Button 1: নতুন শিক্ষার্থী ভর্তি */}
+              <button
+                onClick={onNewStudentAdmission || onNewStudentPayment}
+                className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-[#faf4ea] hover:bg-white text-[#521218] font-black text-xs sm:text-sm shadow-md border border-[#f5c388] transition-all hover:scale-[1.02] active:scale-95 cursor-pointer"
+                title="নতুন শিক্ষার্থী ভর্তি ফরম পূরণ করুন"
+              >
+                <UserPlus size={16} className="text-[#6d1a22]" />
+                <span>+ নতুন ভর্তি</span>
+              </button>
+
+              {/* Button 2: শিক্ষার্থীর ফি পরিশোধ */}
               <button
                 onClick={onNewStudentPayment}
-                className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#faf4ea] hover:bg-white text-[#521218] font-black text-xs sm:text-sm shadow-md border border-[#f5c388] transition-all hover:scale-[1.02] active:scale-95 cursor-pointer"
-                title="নতুন শিক্ষার্থী ভর্তি বা ফি আদায় রসিদ তৈরি করুন"
+                className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-emerald-800 hover:bg-emerald-700 text-white font-black text-xs sm:text-sm shadow-md border border-emerald-600/50 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer"
+                title="শিক্ষার্থীর কোর্স ফি ও বকেয়া কিস্তি আদায় করুন"
               >
-                <PlusCircle size={16} className="text-[#6d1a22]" />
-                <span>+ শিক্ষার্থী ফি</span>
+                <CreditCard size={16} className="text-emerald-200" />
+                <span>+ ফি পরিশোধ</span>
               </button>
 
               <button

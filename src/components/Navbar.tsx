@@ -16,8 +16,6 @@ import {
   FileSpreadsheet,
   FileText,
   Briefcase,
-  Type,
-  Cloud,
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -47,9 +45,6 @@ export const Navbar: React.FC<NavbarProps> = ({
   onResetAllData,
   onOpenMonthlyReport,
   onOpenCashMemo,
-  onOpenFontSettings,
-  currentFontName,
-  isCloudSynced = true,
 }) => {
   const [showBranchInfo, setShowBranchInfo] = useState(false);
   const branchDropdownRef = useRef<HTMLDivElement>(null);
@@ -119,46 +114,11 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Right Controls: Branch Display & User Profile */}
           <div className="flex items-center gap-2 sm:gap-3">
-            {/* Real-time Cloud Sync Badge */}
-            <div
-              title={
-                isCloudSynced
-                  ? 'Firebase Firestore রিয়েল-টাইম ক্লাউড সিঙ্ক সক্রিয় রয়েছে'
-                  : 'ক্লাউড সংযোগ সক্রিয় হচ্ছে...'
-              }
-              className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-[#f1f9f4] border border-[#a3e635]/60 text-[#166534] shadow-2xs select-none"
-            >
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-              </span>
-              <Cloud size={12} className="text-emerald-700" />
-              <span>ক্লাউড সিঙ্ক লাইভ</span>
-            </div>
-
-            {/* Bangla Font Customizer Button */}
-            {onOpenFontSettings && (
-              <button
-                type="button"
-                onClick={onOpenFontSettings}
-                title="বাংলা ফন্ট, সাইজ ও নান্দনিক স্টাইল পরিবর্তন করুন"
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold text-[#6d1a22] hover:bg-[#faebdb] border border-[#d9c7b4] bg-[#fdfaf5] transition-colors cursor-pointer shadow-2xs"
-              >
-                <Type size={13} className="text-[#ea580c]" />
-                <span className="font-bangla">বাংলা ফন্ট</span>
-                {currentFontName && (
-                  <span className="hidden md:inline-block text-[10px] font-semibold text-gray-600 bg-[#f4e9db] px-1.5 py-0.5 rounded">
-                    {currentFontName}
-                  </span>
-                )}
-              </button>
-            )}
-
             {/* Reset to 0 Button */}
             {onResetAllData && (
               <button
                 onClick={onResetAllData}
-                title="সকল হিসাব ও রেকর্ড শূন্য (০) করুন"
+                title="সকল পেমেন্ট ও খরচের হিসাব শূন্য (০) করুন (শিক্ষার্থী বহাল থাকবে)"
                 className="hidden md:flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-[#6d1a22] hover:bg-[#faebdb] border border-[#d9c7b4] transition-colors cursor-pointer"
               >
                 <RotateCcw size={13} />
