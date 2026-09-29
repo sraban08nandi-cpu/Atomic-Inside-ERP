@@ -50,6 +50,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
       email: string;
       badge: string;
       icon: React.ReactNode;
+      signature: string;
     }
   > = {
     founder: {
@@ -58,6 +59,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
       email: 'founder@atomicinside.edu.bd',
       badge: 'Supreme Administrative Authority & Founder',
       icon: <Crown size={19} />,
+      signature: 'Anirban Ghosh',
     },
     ict_head: {
       fixedName: 'Srabon Nondi',
@@ -65,6 +67,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
       email: 'ict.head@atomicinside.edu.bd',
       badge: 'IT & System Infrastructure Technical Head',
       icon: <Laptop size={19} />,
+      signature: 'Srabon Nondi',
     },
     manager: {
       fixedName: 'Ankon Saha',
@@ -72,6 +75,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
       email: 'manager@atomicinside.edu.bd',
       badge: 'Campus Operations & Finance Manager',
       icon: <Building2 size={19} />,
+      signature: 'Ankon Saha',
     },
   };
 
@@ -199,14 +203,22 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
                             : 'border-[#e5d6c5] bg-white text-gray-700 hover:bg-[#faf4ea]'
                         }`}
                       >
-                        <div className="flex items-center gap-2">
-                          <span className={isSelected ? 'text-[#6d1a22]' : 'text-gray-400'}>
-                            {cfg.icon}
-                          </span>
-                          <span className="text-sm font-black leading-tight">{cfg.roleTitle}</span>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className={isSelected ? 'text-[#6d1a22]' : 'text-gray-400'}>
+                              {cfg.icon}
+                            </span>
+                            <span className="text-sm font-black leading-tight">{cfg.roleTitle}</span>
+                          </div>
+                          <div className="mt-2 text-xs font-bold text-gray-900">{cfg.fixedName}</div>
+                          <span className="text-[10px] text-gray-500 mt-1 block leading-tight">{cfg.badge}</span>
                         </div>
-                        <div className="mt-2 text-xs font-bold text-gray-900">{cfg.fixedName}</div>
-                        <span className="text-[10px] text-gray-500 mt-1 leading-tight">{cfg.badge}</span>
+                        <div className="mt-3 pt-2 border-t border-[#ebdccf] text-center bg-white/60 rounded-lg py-1">
+                          <span className="text-[9px] text-gray-400 uppercase tracking-tighter block">Authorized Signature</span>
+                          <span className="font-serif italic text-xs font-black text-[#6d1a22] tracking-wider">
+                            {cfg.signature}
+                          </span>
+                        </div>
                       </button>
                     );
                   })}

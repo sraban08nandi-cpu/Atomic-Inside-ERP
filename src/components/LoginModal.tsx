@@ -48,6 +48,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin
       email: string;
       desc: string;
       icon: React.ReactNode;
+      signature: string;
     }
   > = {
     founder: {
@@ -56,6 +57,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin
       email: 'founder@atomicinside.edu.bd',
       desc: 'Supreme Authority',
       icon: <Crown size={16} />,
+      signature: 'Anirban Ghosh',
     },
     ict_head: {
       fixedName: 'Srabon Nondi',
@@ -63,6 +65,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin
       email: 'ict.head@atomicinside.edu.bd',
       desc: 'IT & Infrastructure',
       icon: <Laptop size={16} />,
+      signature: 'Srabon Nondi',
     },
     manager: {
       fixedName: 'Ankon Saha',
@@ -70,6 +73,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin
       email: 'manager@atomicinside.edu.bd',
       desc: 'Branch & Operations',
       icon: <Building2 size={16} />,
+      signature: 'Ankon Saha',
     },
   };
 
@@ -150,14 +154,21 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin
                         : 'border-[#e4d4c3] bg-white text-gray-700 hover:bg-[#faf5ec]'
                     }`}
                   >
-                    <div className="flex items-center gap-1.5">
-                      <span className={isSelected ? 'text-[#6d1a22]' : 'text-gray-400'}>
-                        {cfg.icon}
-                      </span>
-                      <span className="font-extrabold text-xs">{cfg.roleTitle}</span>
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <span className={isSelected ? 'text-[#6d1a22]' : 'text-gray-400'}>
+                          {cfg.icon}
+                        </span>
+                        <span className="font-extrabold text-xs">{cfg.roleTitle}</span>
+                      </div>
+                      <div className="text-[11px] font-bold text-gray-900 mt-1">{cfg.fixedName}</div>
+                      <div className="text-[9.5px] text-gray-500 mt-0.5">{cfg.desc}</div>
                     </div>
-                    <div className="text-[11px] font-bold text-gray-900 mt-1">{cfg.fixedName}</div>
-                    <div className="text-[9.5px] text-gray-500 mt-0.5">{cfg.desc}</div>
+                    <div className="mt-2 pt-1.5 border-t border-[#ebdccf] text-center bg-white/70 rounded py-0.5">
+                      <span className="font-serif italic text-[11px] font-black text-[#6d1a22] tracking-wider block">
+                        {cfg.signature}
+                      </span>
+                    </div>
                   </button>
                 );
               })}

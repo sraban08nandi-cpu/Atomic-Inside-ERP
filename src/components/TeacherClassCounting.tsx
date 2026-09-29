@@ -206,6 +206,76 @@ export const TeacherClassCounting: React.FC<TeacherClassCountingProps> = ({
         </div>
       </div>
 
+      {/* Per Teacher Class Counting Dropdown Selector */}
+      <div className="bg-[#f8efe3] border-2 border-[#d9c7b4] p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-[#6d1a22] text-[#fcf7ee] flex items-center justify-center shrink-0">
+            <Filter size={18} />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-[#521218] uppercase tracking-wider">
+              প্রতি শিক্ষক ক্লাস গণনা (Per Teacher Class Counting Dropdown)
+            </label>
+            <p className="text-[11px] text-gray-600">
+              নির্দিষ্ট শিক্ষকের পৃথক ক্লাস লগ, মোট ক্লাস সংখ্যা ও সম্মানী দেখতে শিক্ষক বাছাই করুন
+            </p>
+          </div>
+        </div>
+
+        <div className="w-full sm:w-auto min-w-[280px]">
+          <select
+            value={selectedTeacherId}
+            onChange={(e) => setSelectedTeacherId(e.target.value)}
+            className="w-full px-4 py-2.5 bg-white border-2 border-[#6d1a22]/30 rounded-xl text-xs sm:text-sm font-bold text-[#6d1a22] focus:outline-none focus:ring-2 focus:ring-[#6d1a22] cursor-pointer shadow-xs"
+          >
+            <option value="all">👥 সকল শিক্ষক (All Faculty Members Combined)</option>
+            {teachers.map((t) => {
+              const tLogs = classLogs.filter(
+                (l) => l.teacherId === t.id && (!l.branch || l.branch === 'Narayanganj')
+              );
+              const tClasses = tLogs.length;
+              return (
+                <option key={t.id} value={t.id}>
+                  👨‍🏫 {t.name} — ({t.subject}) [{tClasses} টি ক্লাস সম্পন্ন]
+                </option>
+              );
+            })}
+          </select>
+        </div>
+      </div>
+
+      {/* Selected Teacher Highlight Info Banner (if a specific teacher is selected) */}
+      {selectedTeacherId !== 'all' && (() => {
+        const activeT = teachers.find((t) => t.id === selectedTeacherId);
+        if (!activeT) return null;
+        return (
+          <div className="bg-gradient-to-r from-[#6d1a22] to-[#8d242e] text-[#fcf7ee] p-4 rounded-2xl shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-xl bg-white/10 flex items-center justify-center font-black text-lg border border-white/20">
+                👨‍🏫
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="font-black text-base text-white">{activeT.name}</h3>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-400 text-gray-900 font-bold uppercase">
+                    {activeT.subject}
+                  </span>
+                </div>
+                <p className="text-xs text-[#fde4cb] mt-0.5">
+                  প্রতি ক্লাস সম্মানী হার: <strong>৳{activeT.ratePerClass.toLocaleString()}</strong> • শাখা: {activeT.branch}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 bg-black/20 px-3.5 py-2 rounded-xl text-xs border border-white/10 font-mono">
+              <span>এই শিক্ষকের মোট ক্লাস: <strong className="text-amber-300">{totalClasses} টি</strong></span>
+              <span>•</span>
+              <span>মোট সম্মানী: <strong className="text-emerald-300">৳{totalHonorariumValue.toLocaleString()}</strong></span>
+            </div>
+          </div>
+        );
+      })()}
+
       {/* 3 Overview Stat Badges */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* Total Classes */}
