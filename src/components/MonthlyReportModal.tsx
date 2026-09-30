@@ -459,7 +459,7 @@ export const MonthlyReportModal: React.FC<MonthlyReportModalProps> = ({
     // Summary Rows for Sheet 1
     const summaryRows = [
       {
-        sl: 1,
+        sl: 'INFO',
         metric: 'ক্যাম্পাস ও পরিচালনা পরিষদ (Campus Board)',
         details: `${selectedBranch} Campus • 1. Founder- Anirban Ghosh • 2. ICT Head- Srabon Nondi • 3. Manager- Ankon Saha`,
         amount: `${selectedBranch} Branch`,
@@ -467,67 +467,149 @@ export const MonthlyReportModal: React.FC<MonthlyReportModalProps> = ({
         type: 'neutral' as const,
       },
       {
-        sl: 2,
+        sl: 'INFO',
         metric: 'হিসাবকাল ও অডিট মাস (Accounting Period)',
         details: isAllTime ? 'সর্বকালীন সম্পূর্ণ ইআরপি ডেটা (All-Time Historical)' : `${MONTH_NAMES[selectedMonth]} ${selectedYear}`,
         amount: isAllTime ? 'All-Time Master' : `${MONTH_NAMES[selectedMonth]} ${selectedYear}`,
         impact: 'Master Audit Scope',
         type: 'neutral' as const,
       },
+      // PART 1: REVENUE
       {
-        sl: 3,
-        metric: 'মোট শিক্ষার্থী ফি আদায় (Student Fee Collections)',
+        sl: 'SEC-A',
+        metric: '=== PART 1: 📥 REVENUE & CASH INFLOW (আয়ের খাত ও নেট আয়) ===',
+        details: 'শিক্ষার্থীদের নিকট থেকে সংগৃহীত কোর্স ও ভর্তি ফি',
+        amount: 'INFLOW AUDIT',
+        impact: 'Cash Inflow (+)',
+        type: 'section_header' as const,
+      },
+      {
+        sl: 1,
+        metric: 'শিক্ষার্থী কোর্স ফি ও কিস্তি আদায় (Student Fee Collections)',
         details: `${sourceStudentPayments.length} টি মানি রসিদ কিস্তি আদায়`,
         amount: calcStudentIncome,
         impact: 'ক্যাশ ইনফ্লো / মোট জমা (+)',
         type: 'inflow' as const,
       },
       {
-        sl: 4,
-        metric: 'মোট শিক্ষক সম্মানী প্রদান (Teacher Honorarium Paid)',
+        sl: 'TOTAL-1',
+        metric: '💰 সর্বমোট নেট আয় (TOTAL NET EARNINGS / CASH INFLOW)',
+        details: 'শিক্ষার্থীদের কোর্স ফি ও ভর্তি বাবদ মোট সংগৃহীত অর্থ (All Student Collections)',
+        amount: calcStudentIncome,
+        impact: '✅ TOTAL NET INFLOW (+)',
+        type: 'subtotal_inflow' as const,
+      },
+      // PART 2: EXPENDITURE
+      {
+        sl: 'SEC-B',
+        metric: '=== PART 2: 📤 EXPENDITURE & OUTFLOW (ব্যয়ের খাত ও নেট ব্যয়) ===',
+        details: 'শিক্ষক সম্মানী + কর্মকর্তা/স্টাফ বেতন + অফিস পরিচালন ব্যয়',
+        amount: 'OUTFLOW AUDIT',
+        impact: 'Cash Outflow (-)',
+        type: 'section_header' as const,
+      },
+      {
+        sl: 2,
+        metric: 'শিক্ষক সম্মানী প্রদান (Faculty Honorarium Paid)',
         details: `${sourceTeacherPayouts.length} টি পেমেন্ট ভাউচার প্রদান`,
         amount: calcTeacherPaid,
         impact: 'ক্যাশ আউটফ্লো / সম্মানী ব্যয় (-)',
         type: 'outflow' as const,
       },
       {
-        sl: 5,
-        metric: 'মোট কর্মকর্তা/স্টাফ বেতন প্রদান (Staff Salaries Paid)',
+        sl: 3,
+        metric: 'কর্মকর্তা ও স্টাফ বেতন প্রদান (Staff Salaries Paid)',
         details: `${sourceStaffVouchers.length} টি বেতন ভাউচার পরিশোধ`,
         amount: calcStaffPaid,
         impact: 'ক্যাশ আউটফ্লো / স্টাফ বেতন ব্যয় (-)',
         type: 'outflow' as const,
       },
       {
-        sl: 6,
-        metric: 'প্রাতিষ্ঠানিক অফিস ও পরিচালন ব্যয় (Overhead Expenses)',
-        details: `${sourceExpenses.filter((e) => e.category !== 'salary_staff').length} টি ভাউচার (রুম ভাড়া, বিদ্যুৎ, শিট ইত্যাদি)`,
-        amount: calcNonSalaryExpenses,
+        sl: 4,
+        metric: 'ক্যাম্পাস রুম ভাড়া, বিদ্যুৎ ও পরিষেবা (Rent & Utilities)',
+        details: `${sourceExpenses.filter((e) => e.category === 'rent' || e.category === 'utilities').length} টি ভাউচার`,
+        amount: sourceExpenses
+          .filter((e) => e.category === 'rent' || e.category === 'utilities')
+          .reduce((acc, e) => acc + e.amount, 0),
         impact: 'ক্যাশ আউটফ্লো / অফিস ব্যয় (-)',
         type: 'outflow' as const,
       },
       {
-        sl: 7,
-        metric: 'সর্বমোট প্রাতিষ্ঠানিক ব্যয় (Total Combined Outflow)',
-        details: 'শিক্ষক সম্মানী + কর্মকর্তা বেতন + অফিস পরিচালন ব্যয়',
-        amount: calcTotalOutflow,
-        impact: 'মোট প্রাতিষ্ঠানিক ব্যয় (-)',
+        sl: 5,
+        metric: 'লেকচার শিট, ফটোকপি ও প্রিন্টিং (Sheets & Printing)',
+        details: `${sourceExpenses.filter((e) => e.category === 'printing').length} টি ভাউচার`,
+        amount: sourceExpenses
+          .filter((e) => e.category === 'printing')
+          .reduce((acc, e) => acc + e.amount, 0),
+        impact: 'ক্যাশ আউটফ্লো / একাডেমিক প্রিন্টিং (-)',
         type: 'outflow' as const,
       },
       {
-        sl: 8,
-        metric: 'নীট ক্যাশ স্থিতি (NET CASH IN HAND)',
-        details: calcNetCash >= 0 ? 'নীট উদ্বৃত্ত / নিট লাভ (Surplus)' : 'নীট ঘাটতি (Deficit)',
-        amount: calcNetCash,
-        impact: calcNetCash >= 0 ? '✓ উদ্বৃত্ত / Surplus' : '✗ ঘাটতি / Deficit',
-        type: 'net' as const,
+        sl: 6,
+        metric: 'অন্যান্য প্রাতিষ্ঠানিক অফিস ও পরিচালন ব্যয় (Other Overhead Expenses)',
+        details: `${sourceExpenses.filter((e) => !['salary_staff', 'rent', 'utilities', 'printing'].includes(e.category)).length} টি ভাউচার (চা-আপ্যায়ন, ব্যানার, ল্যাব ইত্যাদি)`,
+        amount: sourceExpenses
+          .filter((e) => !['salary_staff', 'rent', 'utilities', 'printing'].includes(e.category))
+          .reduce((acc, e) => acc + e.amount, 0),
+        impact: 'ক্যাশ আউটফ্লো / বিবিধ অফিস ব্যয় (-)',
+        type: 'outflow' as const,
       },
       {
-        sl: 9,
+        sl: 'TOTAL-2',
+        metric: '💸 সর্বমোট নেট ব্যয় (TOTAL NET EXPENSES / COMBINED OUTFLOW)',
+        details: 'শিক্ষক সম্মানী + কর্মকর্তা বেতন + সার্বিক অফিস পরিচালন ব্যয় (Total Outflow)',
+        amount: calcTotalOutflow,
+        impact: '🔻 TOTAL NET OUTFLOW (-)',
+        type: 'subtotal_outflow' as const,
+      },
+      // PART 3: NET BOTTOM LINE
+      {
+        sl: 'SEC-C',
+        metric: '=== PART 3: ⚖️ BOTTOM LINE CASH POSITION (নিট নগদ স্থিতি ও মুনাফা) ===',
+        details: 'মোট নেট আয় (৳) বিয়োগ মোট নেট ব্যয় (৳)',
+        amount: 'NET POSITION',
+        impact: 'P&L Bottom Line',
+        type: 'section_header' as const,
+      },
+      {
+        sl: 'NET-P&L',
+        metric: '🌟 নিট ক্যাশ উদ্বৃত্ত / নিট লাভ (NET CASH SURPLUS / PROFIT)',
+        details: calcNetCash >= 0 ? 'নিট ক্যাশ উদ্বৃত্ত / লাভ (Surplus Cash in Hand)' : 'নিট ঘাটতি / ঋণাত্মক স্থিতি (Deficit Cash)',
+        amount: calcNetCash,
+        impact: calcNetCash >= 0 ? '✓ নিট উদ্বৃত্ত / Surplus' : '⚠️ নিট ঘাটতি / Deficit',
+        type: 'final_net' as const,
+      },
+      // PART 4: RECEIVABLES & ACCRUALS
+      {
+        sl: 'SEC-D',
+        metric: '=== PART 4: ⏳ OUTSTANDING RECEIVABLES & LIABILITIES (বকেয়া খতিয়ান) ===',
+        details: 'ভবিষ্যৎ আদায়যোগ্য পাওনা ও প্রদেয় দায়সমূহ',
+        amount: 'ACCRUED BALANCES',
+        impact: 'Audit Ledger',
+        type: 'section_header' as const,
+      },
+      {
+        sl: 7,
         metric: 'মোট শিক্ষার্থী বকেয়া পাওনা (Total Student Dues Receivable)',
         details: `${activeStudents.filter((s) => s.dueAmount > 0).length} জন শিক্ষার্থীর ফি বকেয়া`,
         amount: totalStudentDues,
         impact: 'ভবিষ্যৎ আদায়যোগ্য প্রাতিষ্ঠানিক সম্পদ',
+        type: 'kpi' as const,
+      },
+      {
+        sl: 8,
+        metric: 'মোট শিক্ষক বকেয়া সম্মানী (Outstanding Faculty Dues Payable)',
+        details: `${activeTeachers.filter((t) => t.pendingPayable > 0).length} জন শিক্ষকের সম্মানী বকেয়া`,
+        amount: totalFacultyDues,
+        impact: 'বকেয়া সম্মানী দায় (Payable)',
+        type: 'kpi' as const,
+      },
+      {
+        sl: 9,
+        metric: 'মাসিক কর্মকর্তা পে-রোল বাজেট (Monthly Staff Payroll Budget)',
+        details: `${activeStaff.length} জন সক্রিয় কর্মকর্তা/কর্মচারী`,
+        amount: totalStaffPayroll,
+        impact: 'মাসিক নির্ধারিত বেতন প্রতিশ্রুতি',
         type: 'kpi' as const,
       },
       {
@@ -536,30 +618,6 @@ export const MonthlyReportModal: React.FC<MonthlyReportModalProps> = ({
         details: `${calcClassHours.toFixed(1)} মোট পাঠদান ঘণ্টা সম্পন্ন`,
         amount: `${calcClassCount} টি ক্লাস`,
         impact: 'একাডেমিক পাঠদান আউটপুট',
-        type: 'kpi' as const,
-      },
-      {
-        sl: 11,
-        metric: 'ক্লাস প্রতি অর্জিত মোট শিক্ষক সম্মানী (Accrued Honorarium)',
-        details: 'ক্লাস সংখ্যা ও নির্ধারিত রেট অনুযায়ী মোট প্রাপ্য',
-        amount: calcClassAccrued,
-        impact: 'অর্জিত মোট শিক্ষক লায়াবিলিটি',
-        type: 'kpi' as const,
-      },
-      {
-        sl: 12,
-        metric: 'মোট শিক্ষক বকেয়া সম্মানী (Outstanding Faculty Due)',
-        details: `${activeTeachers.filter((t) => t.pendingPayable > 0).length} জন শিক্ষকের সম্মানী বকেয়া`,
-        amount: totalFacultyDues,
-        impact: 'বকেয়া সম্মানী দায় (Payable)',
-        type: 'kpi' as const,
-      },
-      {
-        sl: 13,
-        metric: 'মাসিক কর্মকর্তা পে-রোল বাজেট (Monthly Staff Payroll Budget)',
-        details: `${activeStaff.length} জন সক্রিয় কর্মকর্তা/কর্মচারী`,
-        amount: totalStaffPayroll,
-        impact: 'মাসিক নির্ধারিত বেতন প্রতিশ্রুতি',
         type: 'kpi' as const,
       },
     ];
@@ -841,7 +899,7 @@ export const MonthlyReportModal: React.FC<MonthlyReportModalProps> = ({
         },
         [
         {
-          title: 'Executive Financial Summary & Monthly KPI',
+          title: 'Executive Financial Summary (Net Earnings & Net Expenses)',
           data: reportData.summaryRows.map((r) => ({
             'SL': r.sl,
             'Financial Category': r.metric,
@@ -850,6 +908,13 @@ export const MonthlyReportModal: React.FC<MonthlyReportModalProps> = ({
             'Impact': r.impact,
           })),
           headers: ['SL', 'Financial Category', 'Description', 'Amount / Value', 'Impact'],
+          summaryRow: {
+            'SL': 'NET P&L',
+            'Financial Category': '🌟 নিট ক্যাশ উদ্বৃত্ত / লাভ (NET PROFIT)',
+            'Description': `Net Earnings: BDT ${reportData.kpis.totalStudentIncome} | Net Expenses: BDT ${reportData.kpis.totalCombinedOutflow}`,
+            'Amount / Value': `BDT ${reportData.kpis.netCashFlow}`,
+            'Impact': reportData.kpis.netCashFlow >= 0 ? 'Surplus (+)' : 'Deficit (-)',
+          },
         },
         {
           title: 'Master Student Directory & Dues Ledger',
@@ -1204,73 +1269,73 @@ export const MonthlyReportModal: React.FC<MonthlyReportModalProps> = ({
 
           {/* 5 Primary Executive Financial KPIs */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-            {/* 1. Monthly Total Student Collections */}
-            <div className="p-4 rounded-2xl bg-white border-2 border-[#15803d] shadow-2xs">
+            {/* 1. Monthly Total Student Collections (Net Earnings) */}
+            <div className="p-4 rounded-2xl bg-[#f0fdf4] border-2 border-[#15803d] shadow-xs">
               <div className="flex items-center justify-between text-[#15803d] mb-1">
-                <span className="text-[10.5px] font-black uppercase tracking-wider">মোট ছাত্র ফি আদায়</span>
+                <span className="text-[10.5px] font-black uppercase tracking-wider">💰 সর্বমোট নেট আয়</span>
                 <TrendingUp size={16} />
               </div>
               <div className="text-xl sm:text-2xl font-black text-[#15803d] font-mono tabular-nums">
                 ৳{totalMonthlyStudentIncome.toLocaleString()}
               </div>
-              <div className="text-[11px] text-gray-500 mt-1">
-                {monthlyStudentPayments.length} টি পেমেন্ট রসিদ
+              <div className="text-[11px] font-bold text-[#166534] mt-1">
+                Net Earnings ({monthlyStudentPayments.length} টি রসিদ)
               </div>
             </div>
 
-            {/* 2. Monthly Teacher Remuneration */}
-            <div className="p-4 rounded-2xl bg-white border border-[#d9c7b4] shadow-2xs">
+            {/* 2. Monthly Outflow (Net Expenses) */}
+            <div className="p-4 rounded-2xl bg-[#fff1f2] border-2 border-[#be123c] shadow-xs">
               <div className="flex items-center justify-between text-[#be123c] mb-1">
-                <span className="text-[10.5px] font-black uppercase tracking-wider">শিক্ষক সম্মানী ব্যয়</span>
-                <GraduationCap size={16} />
-              </div>
-              <div className="text-xl sm:text-2xl font-black text-[#be123c] font-mono tabular-nums">
-                ৳{totalMonthlyTeacherPaid.toLocaleString()}
-              </div>
-              <div className="text-[11px] text-gray-500 mt-1">
-                {monthlyTeacherPayouts.length} টি পেমেন্ট ভাউচার
-              </div>
-            </div>
-
-            {/* 3. Monthly Staff Salaries Paid */}
-            <div className="p-4 rounded-2xl bg-white border border-[#d9c7b4] shadow-2xs">
-              <div className="flex items-center justify-between text-[#7c3aed] mb-1">
-                <span className="text-[10.5px] font-black uppercase tracking-wider">স্টাফ বেতন ব্যয়</span>
-                <Briefcase size={16} />
-              </div>
-              <div className="text-xl sm:text-2xl font-black text-[#7c3aed] font-mono tabular-nums">
-                ৳{totalMonthlyStaffPaid.toLocaleString()}
-              </div>
-              <div className="text-[11px] text-gray-500 mt-1">
-                {monthlyStaffPayments.length} টি বেতন ভাউচার
-              </div>
-            </div>
-
-            {/* 4. Overhead Expenses */}
-            <div className="p-4 rounded-2xl bg-white border border-[#d9c7b4] shadow-2xs">
-              <div className="flex items-center justify-between text-[#ea580c] mb-1">
-                <span className="text-[10.5px] font-black uppercase tracking-wider">অফিস পরিচালন ব্যয়</span>
+                <span className="text-[10.5px] font-black uppercase tracking-wider">💸 সর্বমোট নেট ব্যয়</span>
                 <TrendingDown size={16} />
               </div>
-              <div className="text-xl sm:text-2xl font-black text-[#ea580c] font-mono tabular-nums">
-                ৳{totalMonthlyNonSalaryExpenses.toLocaleString()}
+              <div className="text-xl sm:text-2xl font-black text-[#be123c] font-mono tabular-nums">
+                ৳{totalMonthlyOutflow.toLocaleString()}
               </div>
-              <div className="text-[11px] text-gray-500 mt-1">
-                {monthlyNonSalaryExpenses.length} টি ব্যয় ভাউচার
+              <div className="text-[11px] font-bold text-[#9f1239] mt-1">
+                Net Expenses (সম্মানী + বেতন + অফিস)
               </div>
             </div>
 
-            {/* 5. Net Available Cash */}
-            <div className={`p-4 rounded-2xl bg-white border-2 ${monthlyNetCashFlow >= 0 ? 'border-[#15803d]' : 'border-rose-500'} shadow-2xs`}>
+            {/* 3. Net Available Cash / Profit */}
+            <div className={`p-4 rounded-2xl border-2 ${monthlyNetCashFlow >= 0 ? 'bg-[#ecfdf5] border-[#059669]' : 'bg-[#fef2f2] border-rose-500'} shadow-xs`}>
               <div className="flex items-center justify-between text-[#501117] mb-1">
-                <span className="text-[10.5px] font-black uppercase tracking-wider">মাসিক নীট স্থিতি</span>
-                <Wallet size={16} className={monthlyNetCashFlow >= 0 ? 'text-[#15803d]' : 'text-rose-600'} />
+                <span className="text-[10.5px] font-black uppercase tracking-wider">⚖️ নিট ক্যাশ উদ্বৃত্ত</span>
+                <Wallet size={16} className={monthlyNetCashFlow >= 0 ? 'text-[#059669]' : 'text-rose-600'} />
               </div>
-              <div className={`text-xl sm:text-2xl font-black font-mono tabular-nums ${monthlyNetCashFlow >= 0 ? 'text-[#15803d]' : 'text-rose-600'}`}>
+              <div className={`text-xl sm:text-2xl font-black font-mono tabular-nums ${monthlyNetCashFlow >= 0 ? 'text-[#059669]' : 'text-rose-600'}`}>
                 ৳{monthlyNetCashFlow.toLocaleString()}
               </div>
-              <div className="text-[11px] font-semibold text-gray-600 mt-1">
-                {monthlyNetCashFlow >= 0 ? '✓ উদ্বৃত্ত সঞ্চয় (Surplus)' : '✗ ঘাটতি (Deficit)'}
+              <div className="text-[11px] font-bold text-gray-700 mt-1">
+                {monthlyNetCashFlow >= 0 ? '✓ Net Profit (উদ্বৃত্ত ফান্ড)' : '⚠️ Net Deficit (ঘাটতি)'}
+              </div>
+            </div>
+
+            {/* 4. Student Dues */}
+            <div className="p-4 rounded-2xl bg-[#eff6ff] border-2 border-[#3b82f6] shadow-xs">
+              <div className="flex items-center justify-between text-[#1d4ed8] mb-1">
+                <span className="text-[10.5px] font-black uppercase tracking-wider">🎓 বকেয়া শিক্ষার্থী ফি</span>
+                <AlertCircle size={16} />
+              </div>
+              <div className="text-xl sm:text-2xl font-black text-[#1d4ed8] font-mono tabular-nums">
+                ৳{branchStudents.reduce((a, b) => a + b.dueAmount, 0).toLocaleString()}
+              </div>
+              <div className="text-[11px] font-bold text-[#1e40af] mt-1">
+                Student Dues Receivable
+              </div>
+            </div>
+
+            {/* 5. Teacher Dues */}
+            <div className="p-4 rounded-2xl bg-[#fffbeb] border-2 border-[#f59e0b] shadow-xs">
+              <div className="flex items-center justify-between text-[#b45309] mb-1">
+                <span className="text-[10.5px] font-black uppercase tracking-wider">👨‍🏫 বকেয়া শিক্ষক সম্মানী</span>
+                <Clock size={16} />
+              </div>
+              <div className="text-xl sm:text-2xl font-black text-[#b45309] font-mono tabular-nums">
+                ৳{branchTeachers.reduce((a, b) => a + b.pendingPayable, 0).toLocaleString()}
+              </div>
+              <div className="text-[11px] font-bold text-[#92400e] mt-1">
+                Faculty Dues Payable
               </div>
             </div>
           </div>
@@ -1374,43 +1439,74 @@ export const MonthlyReportModal: React.FC<MonthlyReportModalProps> = ({
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-[#ede0d2]">
+                      {/* Section 1: Inflow */}
+                      <tr className="bg-[#f0fdf4] font-black text-[#15803d]">
+                        <td colSpan={3} className="py-2 px-3 text-[11px] uppercase tracking-wider">
+                          📥 আয়ের খাত ও নেট আয় (Revenue & Net Earnings)
+                        </td>
+                      </tr>
                       <tr className="hover:bg-[#faf4ea]/50">
-                        <td className="py-2 px-3 font-bold text-[#15803d]">মোট ছাত্র ফি আদায় (Student Fees Inflow)</td>
+                        <td className="py-2 px-3 font-semibold text-gray-900">শিক্ষার্থী কোর্স ফি আদায় (Student Fees Inflow)</td>
                         <td className="py-2 px-3 text-gray-600">{monthlyStudentPayments.length} টি মানি রসিদ কিস্তি আদায়</td>
                         <td className="py-2 px-3 text-right font-black text-[#15803d]">৳{totalMonthlyStudentIncome.toLocaleString()}</td>
                       </tr>
+                      <tr className="bg-[#dcfce7] font-black text-[#065F46] border-y border-[#86efac]">
+                        <td className="py-2 px-3">💰 সর্বমোট নেট আয় (TOTAL NET EARNINGS)</td>
+                        <td className="py-2 px-3 text-xs">কোর্স ও ভর্তি ফি বাবদ মোট সংগৃহীত অর্থ (+)</td>
+                        <td className="py-2 px-3 text-right text-sm text-[#047857]">৳{totalMonthlyStudentIncome.toLocaleString()}</td>
+                      </tr>
+
+                      {/* Section 2: Outflow */}
+                      <tr className="bg-[#fff1f2] font-black text-[#be123c]">
+                        <td colSpan={3} className="py-2 px-3 text-[11px] uppercase tracking-wider">
+                          📤 ব্যয়ের খাত ও নেট ব্যয় (Expenditure & Net Expenses)
+                        </td>
+                      </tr>
                       <tr className="hover:bg-[#faf4ea]/50">
-                        <td className="py-2 px-3 font-bold text-[#be123c]">শিক্ষক সম্মানী প্রদান (Teacher Honorarium)</td>
+                        <td className="py-2 px-3 font-semibold text-gray-900">শিক্ষক সম্মানী প্রদান (Teacher Honorarium)</td>
                         <td className="py-2 px-3 text-gray-600">{monthlyTeacherPayouts.length} টি পেমেন্ট ভাউচার প্রদান</td>
                         <td className="py-2 px-3 text-right font-black text-[#be123c]">৳{totalMonthlyTeacherPaid.toLocaleString()}</td>
                       </tr>
                       <tr className="hover:bg-[#faf4ea]/50">
-                        <td className="py-2 px-3 font-bold text-[#7c3aed]">কর্মকর্তা/স্টাফ বেতন (Staff Salaries Paid)</td>
+                        <td className="py-2 px-3 font-semibold text-gray-900">কর্মকর্তা/স্টাফ বেতন (Staff Salaries Paid)</td>
                         <td className="py-2 px-3 text-gray-600">{monthlyStaffPayments.length} টি বেতন ভাউচার পরিশোধ</td>
                         <td className="py-2 px-3 text-right font-black text-[#7c3aed]">৳{totalMonthlyStaffPaid.toLocaleString()}</td>
                       </tr>
                       <tr className="hover:bg-[#faf4ea]/50">
-                        <td className="py-2 px-3 font-bold text-[#ea580c]">অফিস ও পরিচালন ব্যয় (Overhead Expenses)</td>
+                        <td className="py-2 px-3 font-semibold text-gray-900">অফিস ও পরিচালন ব্যয় (Overhead Expenses)</td>
                         <td className="py-2 px-3 text-gray-600">{monthlyNonSalaryExpenses.length} টি ব্যয় রেকর্ড (ভাড়া, বিদ্যুৎ, শিট ইত্যাদি)</td>
                         <td className="py-2 px-3 text-right font-black text-[#ea580c]">৳{totalMonthlyNonSalaryExpenses.toLocaleString()}</td>
                       </tr>
-                      <tr className="bg-[#faf0e1] font-black text-[#501117]">
-                        <td className="py-2.5 px-3">সর্বমোট সম্মিলিত আউটফ্লো (Total Outflow)</td>
-                        <td className="py-2.5 px-3 text-gray-700">শিক্ষক সম্মানী + কর্মকর্তা বেতন + প্রাতিষ্ঠানিক খরচ</td>
-                        <td className="py-2.5 px-3 text-right text-[#be123c]">৳{totalMonthlyOutflow.toLocaleString()}</td>
+                      <tr className="bg-[#ffe4e6] font-black text-[#881337] border-y border-[#fda4af]">
+                        <td className="py-2 px-3">💸 সর্বমোট নেট ব্যয় (TOTAL NET EXPENSES)</td>
+                        <td className="py-2 px-3 text-xs">সম্মানী + বেতন + অফিস পরিচালন ব্যয় (-)</td>
+                        <td className="py-2 px-3 text-right text-sm text-[#be123c]">৳{totalMonthlyOutflow.toLocaleString()}</td>
                       </tr>
-                      <tr className="bg-[#f0f9f3] font-black">
-                        <td className="py-2.5 px-3 text-[#15803d]">মাসিক নীট ক্যাশ ব্যালেন্স (Net Monthly Balance)</td>
-                        <td className="py-2.5 px-3 text-gray-700">মোট জমা - মোট খরচ (ক্যাশ উদ্বৃত্ত / ঘাটতি)</td>
-                        <td className={`py-2.5 px-3 text-right text-sm ${monthlyNetCashFlow >= 0 ? 'text-[#15803d]' : 'text-red-600'}`}>
+
+                      {/* Section 3: Net Profit */}
+                      <tr className={`font-black ${monthlyNetCashFlow >= 0 ? 'bg-[#fef3c7] text-[#521218]' : 'bg-[#fee2e2] text-rose-800'}`}>
+                        <td className="py-2.5 px-3 text-sm">🌟 নিট ক্যাশ উদ্বৃত্ত / লাভ (NET PROFIT)</td>
+                        <td className="py-2.5 px-3 text-xs">
+                          {monthlyNetCashFlow >= 0 ? 'উদ্বৃত্ত ফান্ড স্থিতি (Net Surplus Cash)' : 'ঘাটতি স্থিতি (Net Cash Deficit)'}
+                        </td>
+                        <td className={`py-2.5 px-3 text-right text-base ${monthlyNetCashFlow >= 0 ? 'text-[#047857]' : 'text-rose-600'}`}>
                           ৳{monthlyNetCashFlow.toLocaleString()}
                         </td>
                       </tr>
+
+                      {/* Section 4: Accruals */}
                       <tr className="hover:bg-[#faf4ea]/50">
                         <td className="py-2 px-3 font-bold text-[#501117]">মোট শিক্ষার্থী বকেয়া পাওনা (Student Dues)</td>
                         <td className="py-2 px-3 text-gray-600">ক্যাম্পাসে শিক্ষার্থীদের সর্বমোট বাকি ফি</td>
                         <td className="py-2 px-3 text-right font-black text-[#be123c]">
                           ৳{branchStudents.reduce((a, b) => a + b.dueAmount, 0).toLocaleString()}
+                        </td>
+                      </tr>
+                      <tr className="hover:bg-[#faf4ea]/50">
+                        <td className="py-2 px-3 font-bold text-[#501117]">মোট শিক্ষক বকেয়া সম্মানী (Faculty Dues)</td>
+                        <td className="py-2 px-3 text-gray-600">শিক্ষকদের বকেয়া সম্মানী প্রদেয় দায়</td>
+                        <td className="py-2 px-3 text-right font-black text-[#b45309]">
+                          ৳{branchTeachers.reduce((a, b) => a + b.pendingPayable, 0).toLocaleString()}
                         </td>
                       </tr>
                       <tr className="hover:bg-[#faf4ea]/50">

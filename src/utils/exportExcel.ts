@@ -29,12 +29,21 @@ export interface MasterReportData {
   };
 
   summaryRows: Array<{
-    sl: number;
+    sl: number | string;
     metric: string;
     details: string;
     amount: string | number;
     impact: string;
-    type: 'neutral' | 'inflow' | 'outflow' | 'net' | 'kpi';
+    type:
+      | 'neutral'
+      | 'inflow'
+      | 'outflow'
+      | 'net'
+      | 'kpi'
+      | 'section_header'
+      | 'subtotal_inflow'
+      | 'subtotal_outflow'
+      | 'final_net';
   }>;
 
   // 2. Master Student Directory & Dues (All Students)
@@ -303,6 +312,63 @@ export async function generateMasterExcelWorkbook(
     sheet.getRow(3).height = 10;
   }
 
+  // Helper to draw merged KPI Dashboard Metric Cards in Excel
+  function drawKpiCard(
+    sheet: ExcelJS.Worksheet,
+    startColLetter: string,
+    endColLetter: string,
+    startCol: number,
+    endCol: number,
+    startRow: number,
+    title: string,
+    amountStr: string,
+    subtitle: string,
+    tag: string,
+    accentColor: string,
+    bgLight: string,
+    bgHeader: string,
+    textColor: string
+  ) {
+    sheet.mergeCells(`${startColLetter}${startRow}:${endColLetter}${startRow}`);
+    const titleCell = sheet.getCell(`${startColLetter}${startRow}`);
+    titleCell.value = title;
+    titleCell.font = { name: 'Segoe UI', size: 10.5, bold: true, color: { argb: textColor } };
+    titleCell.alignment = { vertical: 'middle', horizontal: 'center' };
+    sheet.getRow(startRow).height = 22;
+
+    sheet.mergeCells(`${startColLetter}${startRow + 1}:${endColLetter}${startRow + 2}`);
+    const valCell = sheet.getCell(`${startColLetter}${startRow + 1}`);
+    valCell.value = amountStr;
+    valCell.font = { name: 'Segoe UI', size: 17, bold: true, color: { argb: textColor } };
+    valCell.alignment = { vertical: 'middle', horizontal: 'center' };
+    sheet.getRow(startRow + 1).height = 20;
+    sheet.getRow(startRow + 2).height = 20;
+
+    sheet.mergeCells(`${startColLetter}${startRow + 3}:${endColLetter}${startRow + 3}`);
+    const tagCell = sheet.getCell(`${startColLetter}${startRow + 3}`);
+    tagCell.value = `${subtitle} • ${tag}`;
+    tagCell.font = { name: 'Segoe UI', size: 8.5, bold: true, color: { argb: textColor } };
+    tagCell.alignment = { vertical: 'middle', horizontal: 'center' };
+    sheet.getRow(startRow + 3).height = 19;
+
+    for (let r = startRow; r <= startRow + 3; r++) {
+      for (let c = startCol; c <= endCol; c++) {
+        const cell = sheet.getCell(r, c);
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: r === startRow ? bgHeader : bgLight },
+        };
+        cell.border = {
+          top: { style: r === startRow ? 'medium' : 'thin', color: { argb: accentColor } },
+          bottom: { style: r === startRow + 3 ? 'medium' : 'thin', color: { argb: accentColor } },
+          left: { style: c === startCol ? 'medium' : 'thin', color: { argb: accentColor } },
+          right: { style: c === endCol ? 'medium' : 'thin', color: { argb: accentColor } },
+        };
+      }
+    }
+  }
+
   // Auto-fit column widths with safety padding so text is never truncated
   function autoFitColumns(sheet: ExcelJS.Worksheet, minWidth = 14, maxWidth = 45) {
     if (!sheet.columns) return;
@@ -348,24 +414,147 @@ export async function generateMasterExcelWorkbook(
   summarySheet.properties.tabColor = { argb: 'FF6D1A22' };
   addTitleHeader(summarySheet, 'Executive Financial Summary & P&L Statement', 'E');
 
+  const isNetPositive = data.kpis.netCashFlow >= 0;
+
+  // Primary Dashboard Row: 3 High-Impact KPI Cards (Rows 4 to 7)
+  // Card 1: NET EARNINGS (Cols A-B)
+  drawKpiCard(
+    summarySheet,
+    'A',
+    'B',
+    1,
+    2,
+    4,
+    '💰 NET EARNINGS (সর্বমোট নেট আয়)',
+    `৳ ${data.kpis.totalStudentIncome.toLocaleString()}`,
+    'কোর্স ও ভর্তি ফি আদায়',
+    '✅ VERIFIED CASH INFLOW (+)',
+    'FF10B981',
+    'FFECFDF5',
+    'FFD1FAE5',
+    'FF065F46'
+  );
+
+  // Card 2: NET EXPENSES (Col C)
+  drawKpiCard(
+    summarySheet,
+    'C',
+    'C',
+    3,
+    3,
+    4,
+    '💸 NET EXPENSES (সর্বমোট নেট ব্যয়)',
+    `৳ ${data.kpis.totalCombinedOutflow.toLocaleString()}`,
+    'সম্মানী + বেতন + অফিস ব্যয়',
+    '🔻 CASH OUTFLOW (-)',
+    'FFF43F5E',
+    'FFFFF1F2',
+    'FFFFE4E6',
+    'FF881337'
+  );
+
+  // Card 3: NET PROFIT / SURPLUS (Cols D-E)
+  drawKpiCard(
+    summarySheet,
+    'D',
+    'E',
+    4,
+    5,
+    4,
+    '⚖️ NET PROFIT / SURPLUS (নিট ক্যাশ উদ্বৃত্ত)',
+    `৳ ${data.kpis.netCashFlow.toLocaleString()}`,
+    '(নেট আয় - নেট খরচ)',
+    isNetPositive ? '📈 POSITIVE SURPLUS CASH' : '⚠️ NET CASH DEFICIT (ঘাটতি)',
+    isNetPositive ? 'FF059669' : 'FFDC2626',
+    isNetPositive ? 'FFF0FDF4' : 'FFFEF2F2',
+    isNetPositive ? 'FFDCFCE7' : 'FFFECACA',
+    isNetPositive ? 'FF047857' : 'FF991B1B'
+  );
+
+  // Secondary Dashboard Row: 3 Operational Overview Cards (Rows 8 to 11)
+  drawKpiCard(
+    summarySheet,
+    'A',
+    'B',
+    1,
+    2,
+    8,
+    '🎓 নিবন্ধিত শিক্ষার্থী ও বকেয়া ফি',
+    `${data.kpis.totalRegisteredStudents} জন নিবন্ধিত শিক্ষার্থী`,
+    `বকেয়া ফি: ৳ ${data.kpis.totalStudentDue.toLocaleString()}`,
+    'ভবিষ্যৎ আদায়যোগ্য প্রাতিষ্ঠানিক পাওনা',
+    'FF3B82F6',
+    'FFEFF6FF',
+    'FFDBEAFE',
+    'FF1E40AF'
+  );
+
+  drawKpiCard(
+    summarySheet,
+    'C',
+    'C',
+    3,
+    3,
+    8,
+    '👨‍🏫 শিক্ষক ও পাঠদান ক্লাস খতিয়ান',
+    `${data.kpis.totalFacultyCount} জন শিক্ষক • ${data.kpis.totalClassesConducted} টি ক্লাস`,
+    `বকেয়া সম্মানী: ৳ ${data.kpis.totalFacultyDue.toLocaleString()}`,
+    `${data.kpis.totalClassHours.toFixed(1)} মোট পাঠদান ঘণ্টা সম্পন্ন`,
+    'FFF59E0B',
+    'FFFFFBEB',
+    'FFFEF3C7',
+    'FF92400E'
+  );
+
+  drawKpiCard(
+    summarySheet,
+    'D',
+    'E',
+    4,
+    5,
+    8,
+    '👔 কর্মকর্তা/স্টাফ ও পে-রোল বাজেট',
+    `${data.kpis.totalStaffCount} জন কর্মকর্তা/স্টাফ`,
+    `মাসিক বাজেট: ৳ ${data.kpis.totalStaffPayrollBudget.toLocaleString()}`,
+    'ক্যাম্পাস ও প্রশাসনিক পরিচালনা পরিষদ',
+    'FF8B5CF6',
+    'FFFAF5FF',
+    'FFF3E8FF',
+    'FF581C87'
+  );
+
+  // Row 12: Blank separator
+  summarySheet.addRow([]);
+  summarySheet.getRow(12).height = 10;
+
+  // Row 13: Section Banner
+  summarySheet.mergeCells('A13:E13');
+  const sectionBannerCell = summarySheet.getCell('A13');
+  sectionBannerCell.value = 'DETAILED FINANCIAL AUDIT STATEMENT & P&L LEDGER (বিস্তারিত আয়-ব্যয় খতিয়ান ও নিরীক্ষা বিবরণী)';
+  sectionBannerCell.font = { name: 'Segoe UI', size: 11.5, bold: true, color: { argb: 'FFFFFFFF' } };
+  sectionBannerCell.fill = MAROON_HEADER_FILL;
+  sectionBannerCell.alignment = { vertical: 'middle', horizontal: 'center' };
+  summarySheet.getRow(13).height = 28;
+
+  // Row 14: Table Headers
   const summaryHeader = summarySheet.addRow([
     'SL',
-    'Financial Metric / Category (হিসাব খাত)',
+    'Financial Metric / Head (হিসাব খাত)',
     'Description & Audit Details (বিবরণ ও খতিয়ান)',
-    'Amount / Count (পরিমাণ ৳)',
+    'Amount / Value (পরিমাণ ৳)',
     'Financial Impact & Cash Flow (আর্থিক স্থিতি)',
   ]);
   formatHeader(summaryHeader);
 
   summarySheet.columns = [
-    { key: 'sl', width: 8 },
-    { key: 'metric', width: 38 },
-    { key: 'details', width: 44 },
-    { key: 'amount', width: 24 },
-    { key: 'impact', width: 28 },
+    { key: 'sl', width: 12 },
+    { key: 'metric', width: 44 },
+    { key: 'details', width: 50 },
+    { key: 'amount', width: 28 },
+    { key: 'impact', width: 32 },
   ];
 
-  data.summaryRows.forEach((row, idx) => {
+  data.summaryRows.forEach((row) => {
     const isNum = typeof row.amount === 'number';
     const r = summarySheet.addRow([
       row.sl,
@@ -374,7 +563,6 @@ export async function generateMasterExcelWorkbook(
       row.amount,
       row.impact,
     ]);
-    r.height = 24;
 
     r.getCell(1).alignment = { horizontal: 'center', vertical: 'middle' };
     r.getCell(2).alignment = { horizontal: 'left', vertical: 'middle', indent: 1 };
@@ -386,29 +574,86 @@ export async function generateMasterExcelWorkbook(
       r.getCell(4).numFmt = '"৳"#,##0;[Red]-"৳"#,##0;"৳"0';
     }
 
-    // Impact styling
-    if (row.type === 'inflow') {
+    if (row.type === 'section_header') {
+      r.height = 26;
+      r.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF5EDE2' } };
+      r.getCell(2).font = { name: 'Segoe UI', bold: true, size: 11, color: { argb: 'FF6D1A22' } };
+      r.getCell(4).font = { name: 'Segoe UI', bold: true, size: 10, color: { argb: 'FF6D1A22' } };
+      r.getCell(5).font = { name: 'Segoe UI', bold: true, size: 10, color: { argb: 'FF6D1A22' } };
+    } else if (row.type === 'subtotal_inflow') {
+      r.height = 28;
+      r.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFDCFCE7' } };
+      r.getCell(2).font = { name: 'Segoe UI', bold: true, size: 11.5, color: { argb: 'FF065F46' } };
+      r.getCell(4).font = { name: 'Segoe UI', bold: true, size: 13, color: { argb: 'FF047857' } };
+      r.getCell(5).font = { name: 'Segoe UI', bold: true, size: 11, color: { argb: 'FF047857' } };
+      r.eachCell((cell) => {
+        cell.border = {
+          top: { style: 'thin', color: { argb: 'FF10B981' } },
+          bottom: { style: 'double', color: { argb: 'FF10B981' } },
+          left: { style: 'thin', color: { argb: 'FFE5D8C8' } },
+          right: { style: 'thin', color: { argb: 'FFE5D8C8' } },
+        };
+      });
+    } else if (row.type === 'subtotal_outflow') {
+      r.height = 28;
+      r.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFE4E6' } };
+      r.getCell(2).font = { name: 'Segoe UI', bold: true, size: 11.5, color: { argb: 'FF881337' } };
+      r.getCell(4).font = { name: 'Segoe UI', bold: true, size: 13, color: { argb: 'FFBE123C' } };
+      r.getCell(5).font = { name: 'Segoe UI', bold: true, size: 11, color: { argb: 'FFBE123C' } };
+      r.eachCell((cell) => {
+        cell.border = {
+          top: { style: 'thin', color: { argb: 'FFF43F5E' } },
+          bottom: { style: 'double', color: { argb: 'FFF43F5E' } },
+          left: { style: 'thin', color: { argb: 'FFE5D8C8' } },
+          right: { style: 'thin', color: { argb: 'FFE5D8C8' } },
+        };
+      });
+    } else if (row.type === 'final_net' || row.type === 'net') {
+      r.height = 30;
+      r.fill = GOLD_ACCENT_FILL;
+      r.getCell(2).font = { name: 'Segoe UI', bold: true, size: 12, color: { argb: 'FF521218' } };
+      r.getCell(4).font = {
+        name: 'Segoe UI',
+        bold: true,
+        size: 14,
+        color: typeof row.amount === 'number' && row.amount >= 0 ? { argb: 'FF047857' } : { argb: 'FFBE123C' },
+      };
+      r.getCell(5).font = { name: 'Segoe UI', bold: true, size: 11.5, color: { argb: 'FF521218' } };
+      r.eachCell((cell) => {
+        cell.border = TOTAL_BORDER;
+      });
+    } else if (row.type === 'inflow') {
+      r.height = 24;
       r.getCell(4).font = { name: 'Segoe UI', bold: true, color: { argb: 'FF15803D' } };
       r.getCell(5).font = { name: 'Segoe UI', bold: true, color: { argb: 'FF15803D' } };
       r.fill = LIGHT_GREEN_FILL;
+      r.eachCell((cell) => {
+        cell.border = CELL_BORDER;
+      });
     } else if (row.type === 'outflow') {
+      r.height = 24;
       r.getCell(4).font = { name: 'Segoe UI', bold: true, color: { argb: 'FFBE123C' } };
       r.getCell(5).font = { name: 'Segoe UI', bold: true, color: { argb: 'FFBE123C' } };
-    } else if (row.type === 'net') {
-      r.getCell(4).font = { name: 'Segoe UI', bold: true, size: 12, color: { argb: 'FF15803D' } };
-      r.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFDCFCE7' } };
-      r.font = { name: 'Segoe UI', bold: true };
+      r.fill = LIGHT_ROSE_FILL;
+      r.eachCell((cell) => {
+        cell.border = CELL_BORDER;
+      });
     } else if (row.type === 'kpi') {
+      r.height = 24;
       r.getCell(4).font = { name: 'Segoe UI', bold: true, color: { argb: 'FF501117' } };
       r.fill = ZEBRA_ROW_FILL;
+      r.eachCell((cell) => {
+        cell.border = CELL_BORDER;
+      });
+    } else {
+      r.height = 24;
+      r.eachCell((cell) => {
+        cell.border = CELL_BORDER;
+      });
     }
-
-    r.eachCell((cell) => {
-      cell.border = CELL_BORDER;
-    });
   });
 
-  summarySheet.views = [{ state: 'frozen', xSplit: 0, ySplit: 4, showGridLines: true }];
+  summarySheet.views = [{ state: 'frozen', xSplit: 0, ySplit: 14, showGridLines: true }];
 
   // =========================================================================
   // 2. MASTER STUDENT DIRECTORY & DUES SHEET (A-Z Roster)
